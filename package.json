@@ -1,0 +1,12 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "arif",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  }
+}

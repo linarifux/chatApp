@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat App</title>
+    <style>
+        body{
+            background: #2ABB9B;
+        }
+        #container{
+            width: 70%;
+            margin: 0 auto;
+            margin-top: 30px;
+        }
+        #chatpart,#userspart{
+            width: 33%;
+            float: left;
+            border: 1px solid #cccccc;
+            display: none;
+
+        }
+        #chatpart{
+            margin-right: 5px;
+            padding: 5px;
+        }
+        #status{
+            height: 100%;
+        }
+        #signuppart{
+            width: 33%;
+            float: left;
+            border: 1px solid #cccccc;
+            padding: 5px;
+        }
+        input{
+            border: 1px solid #cccccc;
+            height: 20px;
+        }
+        #username{
+            width: 200px;
+            margin-right: 10px;
+        }
+        #messageForm{
+            border: 1px solid #ccc;
+        }
+        #inputpart{
+            padding: 5px;
+        }
+        #message{
+            width: 240px;
+            margin-right: 5px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="error"></div>
+        <div id="signuppart">
+            <h1>Chat Application</h1>
+            <form id="usernameForm">
+                <p>create username</p><input type="text" placeholder="username" id="username"><input type="submit" value="submit">
+            </form>
+        </div>
+        <div id="chatpart">
+            <h1>Chat Appliaction</h1>
+            <form id="messageForm">
+                <div id="status">
+
+                </div>
+                <div id="inputpart">
+                    <input type="text" placeholder="enter your message here.." id="message"><input type="submit" value="Send">
+                </div>
+            </form>
+        </div>
+        <div id="userspart">
+            <p></p>
+        </div>
+    </div>
+
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        $(function(){
+           var socket = io.connect(); 
+           var $messageForm = $('#messageForm');
+           var $message = $('#message');
+           var $chat = $('#status');
+           var $usernameForm = $('#usernameForm');
+           var $users = $('#userspart');
+           var $username = $('#username');
+           var $error = $('#error');
+
+           $usernameForm.submit((e)=>{
+               e.preventDefault();
+               socket.emit('new user',$username.val(),(data)=>{
+                   if(data){
+                        $('#signuppart').hide();
+                        $('#chatpart').show();
+                        $('#userspart').show();
+                   }else{
+                        $error.html('Username is taken');
+                   }
+               })
+
+           });
+
+           socket.on('usernames',(data)=>{
+               var html = '';
+               for(i=0;i<data.length;i++){
+                   html += data[i] + '<br>';
+               }
+               $users.html(html);
+           })
+
+           $messageForm.submit((e)=>{
+               e.preventDefault();
+               socket.emit('send message',$message.val());
+               $message.val('');
+
+           });
+
+           socket.on('new message',(data)=>{
+               $chat.append('<strong>'+data.user+':'+'</strong> ' + data.msg + '<br>')
+           })
+        });
+    </script>
+</body>
+</html>
